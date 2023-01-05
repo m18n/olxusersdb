@@ -60,20 +60,22 @@ bool CheckAuth(sv_user_t* user,sv_packreq_t* pkreq){
     }
     return true;
 }
-void CreateREQ_setdatabase(REQ_setdatabase_t* setdb){
+void CreateREQ_checkauthclient(REQ_checkauthclient_t* setdb){
     sv_CreatePackReq(&setdb->pack);
-    setdb->pack.JsonToObject=REQ_setdatabase_jsontoobject;
-    setdb->pack.ProcessPack=REQ_setdatabase_process;
+    setdb->pack.JsonToObject=REQ_checkauthclient_jsontoobject;
+    setdb->pack.ProcessPack=REQ_checkauthclient_process;
 }
-bool REQ_setdatabase_jsontoobject(REQ_setdatabase_t* setdb,json_value* values){
-    json_object_entry* db=sv_GetNameKey(values,"database");
-    if(db!=NULL&&db->value->type==json_string){
-        strcpy(setdb->database,db->value->u.string.ptr);
+bool REQ_checkauthclient_jsontoobject(REQ_checkauthclient_t* authclient,json_value* values){
+    json_object_entry* name=sv_GetNameKey(values,"name");
+    json_object_entry* password=sv_GetNameKey(values,"password");
+    if(name!=NULL&&name->value->type==json_string&&password!=NULL&&password->value->type==json_string){
+        strcpy(authclient->name,name->value->u.string.ptr);
+        strcpy(authclient->password,password->value->u.string.ptr);
         return true;
     }
     return false;
 }
-void REQ_setdatabase_process(REQ_setdatabase_t* setdb,sv_user_t* user){
+void REQ_checkauthclient_process(REQ_checkauthclient_t* setdb,sv_user_t* user){
     dbclient_t* client=(dbclient_t*)user;
     if(!CheckAuth(user,setdb)){
         return;
@@ -81,13 +83,9 @@ void REQ_setdatabase_process(REQ_setdatabase_t* setdb,sv_user_t* user){
     RES_status_t status;
     CreateRES_status(&status);
     status.code=STATUS_OK;
-    // client->db=db_open(setdb->database);
-    // if(client->db.fptr==NULL){
-    //     status.code=1;
-    // }
     sv_SendPackRes(user,&status,setdb);
 }
 void InitREQPack(sv_server_t* server){
     sv_serv_adduserpacks(server,CreateREQ_auth,sizeof(REQ_auth_t),1);
-    sv_serv_adduserpacks(server,CreateREQ_setdatabase,sizeof(REQ_setdatabase_t),3);
+    sv_serv_adduserpacks(server,CreateREQ_checkauthclient,sizeof(REQ_checkauthclient_t),3);
 }

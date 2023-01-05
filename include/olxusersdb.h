@@ -24,11 +24,12 @@ void REQ_auth_process(REQ_auth_t* auth,sv_user_t* user);
 
 bool CheckAuth(sv_user_t* user,sv_packreq_t* pkreq);
 
-typedef struct REQ_setdatabase{
+typedef struct REQ_checkauthclient{
     sv_packreq_t pack;
-    char database[100];
-}REQ_setdatabase_t;
-void CreateREQ_setdatabase(REQ_setdatabase_t* setdb);
-bool REQ_setdatabase_jsontoobject(REQ_setdatabase_t* setdb,json_value* values);
-void REQ_setdatabase_process(REQ_setdatabase_t* setdb,sv_user_t* user);
+    char name[100];
+    char password[20];
+}REQ_checkauthclient_t;
+void CreateREQ_checkauthclient(REQ_checkauthclient_t* setdb);
+bool REQ_checkauthclient_jsontoobject(REQ_checkauthclient_t* authclient,json_value* values);
+void REQ_checkauthclient_process(REQ_checkauthclient_t* setdb,sv_user_t* user);
 void InitREQPack(sv_server_t* server);
